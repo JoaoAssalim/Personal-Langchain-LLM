@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 # https://docs.tavily.com/
 class WebSearcher:
     def __init__(self, results):
@@ -16,5 +17,8 @@ class WebSearcher:
         )  # instantiate tavily retriver to search on internet and get `k` responses
 
         response = retriever.invoke(query)
-        response = [{"data": item.page_content, "url": item.metadata.get("source", "")} for item in response]
+        response = [
+            {"data": item.page_content, "url": item.metadata.get("source", "")}
+            for item in response
+        ]
         return response
