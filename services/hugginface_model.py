@@ -11,6 +11,10 @@ load_dotenv()
 
 # https://python.langchain.com/v0.1/docs/modules/data_connection/document_loaders/
 class HuggingFaceModel:
+    """
+    This Class is specific to get a model from Langchain
+    and train and return the chain to get informations from document
+    """
     def __init__(self, documents):
         self.documents = documents
 

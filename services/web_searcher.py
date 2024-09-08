@@ -8,6 +8,10 @@ load_dotenv()
 
 # https://docs.tavily.com/
 class WebSearcher:
+    """
+    This Class is specific to do web searchs with Tavily
+    if the LLM can't response with the document context
+    """
     def __init__(self, results):
         self.results = results
 

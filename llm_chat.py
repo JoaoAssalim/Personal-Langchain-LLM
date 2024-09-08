@@ -29,7 +29,7 @@ if "loader_documents" not in st.session_state:
 
 
 uploaded_file = st.file_uploader(
-    "Choose a file to take your questions", type=["pdf", "docx"]
+    "Choose a file to take your questions", type=["pdf", "docx", "csv"]
 )
 
 if (

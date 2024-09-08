@@ -3,6 +3,10 @@ from sentence_transformers import SentenceTransformer, util
 
 # https://sbert.net/
 class Embed:
+    """
+    This Class is specific to get the score between the 
+    user quest and the LLM response
+    """
     def __init__(self, quest, answer):
         self.quest = quest
         self.answer = answer

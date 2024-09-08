@@ -11,7 +11,12 @@ from langchain.chains.question_answering import load_qa_chain
 
 load_dotenv()
 
+# https://python.langchain.com/v0.2/docs/integrations/chat/openai/
 class OpenAIModel():
+    """
+    This Class is specific to get a model from Langchain
+    and train and return the chain to get informations from document
+    """
     def __init__(self, documents):
         self.documents = documents
 
