@@ -7,6 +7,7 @@ load_dotenv()
 
 
 # https://docs.tavily.com/
+# https://python.langchain.com/v0.2/docs/integrations/retrievers/tavily/
 class WebSearcher:
     """
     This Class is specific to do web searchs with Tavily

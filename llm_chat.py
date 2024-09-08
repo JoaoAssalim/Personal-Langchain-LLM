@@ -6,7 +6,7 @@ import pandas as pd
 from io import StringIO
 
 from services.loader import FileLoader
-from services.hugginface_model import HuggingFaceModel
+from services.hugginface_model import HuggingFaceModel, HuggingFacePipelineModel
 from services.openai_model import OpenAIModel
 from services.web_searcher import WebSearcher
 from services.embed import Embed
@@ -50,42 +50,72 @@ if (
         st.session_state.ver = True
 
 if st.session_state.ver:
-
-    option = st.selectbox(
-        "Model Engine",
-        ("huggingfaceh4", "gpt-3.5-turbo"),
+    
+    model_type = st.selectbox(
+        "Model Engine Type",
+        ("HugginFace Pipeline", "HuggingFace Model", "OpenAI"),
     )
+
+    if model_type == "HugginFace Pipeline": # Searching models to improve because this models is really bad actually
+        option = st.selectbox(
+            "Model Engine",
+            ("google/electra-large-discriminator",),
+        )
+    elif model_type == "HuggingFace Model":
+        option = st.selectbox(
+            "Model Engine",
+            ("huggingfaceh4/zephyr-7b-alpha", ),
+        )
+    else:
+        option = st.selectbox(
+            "Model Engine",
+            ("gpt-3.5-turbo",),
+        )
 
     query = st.text_area(
         "Ask something to chat...",
     )
 
     if st.button("Send"):
-        if option == "huggingfaceh4":
-            st.session_state.chain, st.session_state.db = HuggingFaceModel(
-                st.session_state.loader_documents
-            ).train_llm_and_return()
-            
-            docs = st.session_state.db.similarity_search(query)
-            response = st.session_state.chain.run(input_documents=docs, question=query)
-            answer = response.split("Helpful Answer:")[-1]
-
-            print(f"Ans: {answer}")
-        else:
+        if option == "gpt-3.5-turbo":
             st.session_state.chain, st.session_state.db = OpenAIModel(
                 st.session_state.loader_documents
             ).train_llm_and_return()
             
             docs = st.session_state.db.similarity_search(query)
-            response = st.session_state.chain.run(input_documents=docs, question=query)
+            response = st.session_state.chain.run(input_documents=docs, question=query, return_only_outputs=True)
+        
+        elif option == "huggingfaceh4/zephyr-7b-alpha":
+            st.session_state.chain, st.session_state.db = HuggingFaceModel(
+                st.session_state.loader_documents, option
+            ).train_llm_and_return()
             
-            print(f"Ans: {response}")
+            docs = st.session_state.db.similarity_search(query, k=5)
+            response = st.session_state.chain.run(input_documents=docs, question=query, return_only_outputs=True)
+            
+        else:
 
+            st.session_state.chain, st.session_state.db = HuggingFacePipelineModel(
+                st.session_state.loader_documents, option
+            ).train_llm_and_return()
+
+            docs = st.session_state.db.similarity_search(query, k=5)
+            context = " ".join(doc.page_content for doc in docs)
+            response = st.session_state.chain(question=query, context=context)["answer"]
+            
+        
+        # if we are using “stuff” as a chain_type, we need to use this type of answer split
+        answer = response.split("Helpful Answer:")[-1]
+        
+        # else, we use this answer splitter for refine type
+        # studing something to extract jus the final answer from refine chain
+        
         relevance_score = Embed(query, answer).get_score_from_embeds()
+        print(answer, relevance_score)
 
         if answer and relevance_score >= 0.70:
             st.title("Informations found in document.")
-            st.write(answer)
+            st.write(answer)    
         else:
             st.title("Informations found on web.")
             web_searcher = WebSearcher(3)
