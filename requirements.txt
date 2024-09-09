@@ -1,3 +1,4 @@
 tavily-python
 pytesseract
 pdf2image
+pikepdf

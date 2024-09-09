@@ -1,7 +1,15 @@
 import os
 
-from langchain_community.document_loaders import TextLoader, Docx2txtLoader, CSVLoader, PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter, RecursiveJsonSplitter
+from langchain_community.document_loaders import (
+    TextLoader,
+    Docx2txtLoader,
+    CSVLoader,
+    PyPDFLoader,
+)
+from langchain_text_splitters import (
+    RecursiveCharacterTextSplitter,
+    RecursiveJsonSplitter,
+)
 from langchain.docstore.document import Document
 from dotenv import load_dotenv
 
@@ -10,6 +18,8 @@ from PIL import Image
 from pdf2image import convert_from_path
 import fitz
 from io import BytesIO
+import pikepdf
+import docx
 
 load_dotenv()
 
@@ -20,9 +30,10 @@ class FileLoader:
     This class is to Load, Split and extract informations from files and return
     a Document list to train the LLM
     """
+
     def __init__(self, file_path):
         self.file_path = file_path
-        
+
     def extract_and_process_image_from_pdf(self, pdf_document, documents):
         """
         This functions is to extract images from PDF and add as a Document
@@ -40,18 +51,17 @@ class FileLoader:
                 image_doc = Document(
                     page_content="Image extracted",
                     metadata={
-                        "page": page_number + 1, 
-                        "image_index": image_index + 1, 
-                        "source": "image", 
-                        "image_data": image_bytes
-                    }
+                        "page": page_number + 1,
+                        "image_index": image_index + 1,
+                        "source": "image",
+                        "image_data": image_bytes,
+                    },
                 )
                 documents.append(image_doc)
 
         return documents
-                
 
-    def split_text(self, text, file_type=None):
+    def split_text(self, text, metadados, file_type=None):
         """
         This functions is to split texts as Documents and return it
         to train use in the LLM model
@@ -63,12 +73,14 @@ class FileLoader:
         )
 
         document_training = text_splitter.split_documents(text)
-        
+
         if file_type == "pdf":
             pdf_document = fitz.open(self.file_path)
-            document_training = self.extract_and_process_image_from_pdf(pdf_document, document_training)
-        
-        return document_training
+            document_training = self.extract_and_process_image_from_pdf(
+                pdf_document, document_training
+            )
+
+        return document_training, metadados
 
     def load_file(self):
         """
@@ -81,10 +93,26 @@ class FileLoader:
                 file_path=self.file_path,
                 extract_images=True,
             )
+
+            with pikepdf.open(self.file_path) as pdf:
+                docinfo = pdf.docinfo
+                title = str(docinfo.get("/Title", "No Title"))
+                author = str(docinfo.get("/Author", "No Author"))
+                summary = str(docinfo.get("/Subject", "No Summary"))
+                metadados = {"title": title, "author": author, "summary": summary}
+
         elif file_extension == "docx":
             loader = Docx2txtLoader(
                 file_path=self.file_path,
             )
 
+            doc = docx.Document(self.file_path)
+            properties = doc.core_properties
+            metadados = {
+                "title": properties.title if properties.title else "No Title",
+                "author": properties.author if properties.author else "No Author",
+                "summary": properties.subject if properties.subject else "No Summary",
+            }
+
         documents = loader.load()
-        return self.split_text(documents, file_extension)
+        return self.split_text(documents, metadados, file_extension)
