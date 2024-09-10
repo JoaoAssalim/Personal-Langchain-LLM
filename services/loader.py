@@ -61,7 +61,7 @@ class FileLoader:
 
         return documents
 
-    def split_text(self, text, metadados, file_type=None):
+    def split_text(self, text, file_type=None):
         """
         This functions is to split texts as Documents and return it
         to train use in the LLM model
@@ -80,7 +80,7 @@ class FileLoader:
                 pdf_document, document_training
             )
 
-        return document_training, metadados
+        return document_training
 
     def load_file(self):
         """
@@ -94,25 +94,10 @@ class FileLoader:
                 extract_images=True,
             )
 
-            with pikepdf.open(self.file_path) as pdf:
-                docinfo = pdf.docinfo
-                title = str(docinfo.get("/Title", "No Title"))
-                author = str(docinfo.get("/Author", "No Author"))
-                summary = str(docinfo.get("/Subject", "No Summary"))
-                metadados = {"title": title, "author": author, "summary": summary}
-
         elif file_extension == "docx":
             loader = Docx2txtLoader(
                 file_path=self.file_path,
             )
 
-            doc = docx.Document(self.file_path)
-            properties = doc.core_properties
-            metadados = {
-                "title": properties.title if properties.title else "No Title",
-                "author": properties.author if properties.author else "No Author",
-                "summary": properties.subject if properties.subject else "No Summary",
-            }
-
         documents = loader.load()
-        return self.split_text(documents, metadados, file_extension)
+        return self.split_text(documents, file_extension)

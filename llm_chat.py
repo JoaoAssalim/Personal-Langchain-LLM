@@ -27,10 +27,6 @@ if "ver" not in st.session_state:
 if "loader_documents" not in st.session_state:
     st.session_state.loader_documents = False
 
-if "metadados" not in st.session_state:
-    st.session_state.metadados = False
-
-
 
 uploaded_file = st.file_uploader(
     "Choose a file to take your questions", type=["pdf", "docx", "csv"]
@@ -49,15 +45,11 @@ if (
         temp_file_path = temp_file.name
 
         with st.spinner("File is loading..."):
-            st.session_state.loader_documents, st.session_state.metadados = FileLoader(temp_file_path).load_file()
+            st.session_state.loader_documents = FileLoader(temp_file_path).load_file()
 
         st.session_state.ver = True
 
 if st.session_state.ver:
-    
-    st.write(f"Title: {st.session_state.metadados['title']}")
-    st.write(f"Author: {st.session_state.metadados['author']}")
-    st.write(f"Summary: {st.session_state.metadados['summary']}")
     
     model_type = st.selectbox(
         "Model Engine Type",
