@@ -21,6 +21,7 @@ class GroqModel:
     
     def answer_quest(self, query, context):
         if not context:
+            print(f"\nSearching on internet: {query}\n")
             web_searcher = WebSearcher(results=3)
             context = web_searcher.get_web_information(query=query)
             

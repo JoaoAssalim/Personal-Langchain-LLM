@@ -39,7 +39,7 @@ while True:
         break
 
     context = embed.search_in_vectorstore(query=query)
-    context = "\n".join([res.page_content for res, score in context if score <= 0.5])
+    context = "\n".join([res.page_content for res, score in context if score <= 0.6])
     response = groq_model.answer_quest(query=query, context=context)
     
     print(f"\nLLM Response: {response}\n")
