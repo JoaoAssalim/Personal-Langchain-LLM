@@ -8,3 +8,4 @@ altair==4.0
 pypdf
 rapidocr-onnxruntime
 docx2txt
+langchain_mistralai

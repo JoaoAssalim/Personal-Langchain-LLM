@@ -1,8 +1,8 @@
 import os
 
-from langchain_groq import ChatGroq
-from langchain_core.prompts import PromptTemplate
 from dotenv import load_dotenv
+from langchain_mistralai import ChatMistralAI
+from langchain_core.prompts import PromptTemplate
 
 from services.web_searcher import WebSearcher
 
@@ -10,13 +10,12 @@ load_dotenv()
 
 
 # https://python.langchain.com/v0.1/docs/modules/data_connection/document_loaders/
-class GroqModel:
+class MistralModel:
     def __init__(self):
-        self.llm = ChatGroq(
-            model="mixtral-8x7b-32768",
-            temperature=0.0,
-            max_retries=3,
-            api_key=os.getenv("GROQ_API_KEY")
+        self.llm = ChatMistralAI(
+            model="mistral-large-latest",
+            temperature=0,
+            max_retries=2,
         )
     
     def answer_quest(self, query, context):

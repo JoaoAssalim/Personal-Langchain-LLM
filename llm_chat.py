@@ -1,6 +1,6 @@
-from services.loader import FileLoader
-from services.groq_model import GroqModel
 from services.embed import Embed
+from services.loader import FileLoader
+from services.mistral_model import MistralModel
 
 embed = Embed()
 
@@ -31,7 +31,7 @@ while True:
     embed.save_in_vectorstore(loader_documents)
 
 
-groq_model = GroqModel()
+groq_model = MistralModel()
 
 while True:
     query = input("Quest something: ")
