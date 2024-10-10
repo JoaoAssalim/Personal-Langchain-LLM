@@ -1,1 +1,10 @@
 tavily-python
+langchain
+langchain-huggingface
+langchain-chroma
+langchain_community
+langchain-groq
+altair==4.0
+pypdf
+rapidocr-onnxruntime
+docx2txt

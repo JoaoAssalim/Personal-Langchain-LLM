@@ -18,7 +18,7 @@ class WebSearcher:
 
         response = retriever.invoke(query)
         response = [
-            {"data": item.page_content, "url": item.metadata.get("source", "")}
+            item.page_content
             for item in response
         ]
-        return response
+        return "\n".join(response)
